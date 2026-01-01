@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useTheme } from 'next-themes';
 import { 
   Heart, 
   Menu, 
@@ -11,7 +12,9 @@ import {
   LayoutDashboard, 
   Calendar, 
   Settings,
-  ChevronDown 
+  ChevronDown,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -19,10 +22,17 @@ const Navbar = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [user, setUser] = useState(null);
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
     
+    const { theme, setTheme } = useTheme();
     const pathname = usePathname();
     const router = useRouter();
     const dropdownRef = useRef(null);
+
+    // Handle hydration mismatch
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     // Handle scroll effect
     useEffect(() => {
@@ -32,7 +42,6 @@ const Navbar = () => {
         window.addEventListener('scroll', handleScroll);
         
         // Check for logged in user
-        // We check localStorage to see if user exists (simulating auth persistence)
         const checkUser = () => {
             try {
                 const storedUser = localStorage.getItem('careUser');
@@ -48,7 +57,7 @@ const Navbar = () => {
 
         checkUser();
         
-        // Listen for storage changes (in case login happens in another tab)
+        // Listen for storage changes
         window.addEventListener('storage', checkUser);
 
         // Click outside to close dropdown
@@ -66,15 +75,16 @@ const Navbar = () => {
         };
     }, []);
 
-    // Mock Login for demonstration if needed, or rely on other pages to set it
-    // For this component, we primarily read the state.
-
     const handleLogout = () => {
         localStorage.removeItem('careUser');
         setUser(null);
         setProfileDropdownOpen(false);
         setMobileMenuOpen(false);
         router.push('/');
+    };
+
+    const toggleTheme = () => {
+        setTheme(theme === 'dark' ? 'light' : 'dark');
     };
 
     const isActive = (path) => pathname === path;
@@ -88,34 +98,38 @@ const Navbar = () => {
         navLinks.push({ name: 'My Bookings', href: '/dashboard/bookings' });
     }
 
+    if (!mounted) return null;
+
     return (
         <nav 
-            className={`fixed w-full top-0 z-50 transition-all duration-300 border-b border-transparent ${
+            className={`fixed w-full top-0 z-50 transition-all duration-300 border-b ${
                 isScrolled 
-                ? 'bg-white/95 backdrop-blur-md shadow-sm border-gray-100 py-3' 
-                : 'bg-white/50 backdrop-blur-sm py-4'
+                ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm border-gray-200 dark:border-gray-800 py-3' 
+                : 'bg-transparent border-transparent py-4'
             }`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-12">
                     {/* Logo */}
                     <Link href="/" className="flex items-center space-x-2 group">
-                        <div className="bg-gradient-to-br from-rose-500 to-purple-600 p-2 rounded-lg text-white transform group-hover:scale-110 transition-transform duration-200 shadow-md">
+                        <div className="bg-gradient-to-br from-rose-500 to-purple-600 p-2 rounded-xl text-white transform group-hover:scale-110 transition-transform duration-200 shadow-lg shadow-rose-500/20">
                             <Heart className="w-5 h-5 fill-current" />
                         </div>
-                        <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 group-hover:from-rose-600 group-hover:to-purple-600 transition-all duration-300">
+                        <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 group-hover:from-rose-600 group-hover:to-purple-600 transition-all duration-300">
                             Care.xyz
                         </span>
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <div className="hidden md:flex items-center space-x-8">
+                    <div className="hidden md:flex items-center space-x-1">
                         {navLinks.map((link) => (
                             <Link 
                                 key={link.name} 
                                 href={link.href}
-                                className={`text-sm font-medium transition-colors duration-200 hover:text-rose-600 ${
-                                    isActive(link.href) ? 'text-rose-600' : 'text-gray-600'
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                                    isActive(link.href) 
+                                    ? 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400' 
+                                    : 'text-gray-600 dark:text-gray-300 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
                                 }`}
                             >
                                 {link.name}
@@ -123,16 +137,31 @@ const Navbar = () => {
                         ))}
                     </div>
 
-                    {/* Desktop Auth Buttons */}
+                    {/* Desktop Actions */}
                     <div className="hidden md:flex items-center space-x-4">
+                        {/* Theme Toggle */}
+                        <button
+                            onClick={toggleTheme}
+                            className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none"
+                            aria-label="Toggle theme"
+                        >
+                            {theme === 'dark' ? (
+                                <Sun className="w-5 h-5" />
+                            ) : (
+                                <Moon className="w-5 h-5" />
+                            )}
+                        </button>
+
+                        <div className="h-6 w-px bg-gray-200 dark:bg-gray-700"></div>
+
                         {user ? (
                             <div className="relative" ref={dropdownRef}>
                                 <button 
                                     onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                                    className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-rose-600 transition-colors focus:outline-none"
+                                    className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-rose-600 dark:hover:text-rose-400 transition-colors focus:outline-none bg-white dark:bg-gray-800 py-1.5 px-3 rounded-full border border-gray-200 dark:border-gray-700 shadow-sm"
                                 >
-                                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-rose-100 to-purple-100 flex items-center justify-center border border-rose-200">
-                                        <User className="w-4 h-4 text-rose-600" />
+                                    <div className="w-6 h-6 rounded-full bg-gradient-to-r from-rose-100 to-purple-100 dark:from-rose-900 dark:to-purple-900 flex items-center justify-center border border-rose-200 dark:border-rose-800">
+                                        <User className="w-3 h-3 text-rose-600 dark:text-rose-400" />
                                     </div>
                                     <span>{user.name || 'User'}</span>
                                     <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${profileDropdownOpen ? 'rotate-180' : ''}`} />
@@ -140,34 +169,38 @@ const Navbar = () => {
 
                                 {/* Dropdown Menu */}
                                 {profileDropdownOpen && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-1 border border-gray-100 ring-1 ring-black ring-opacity-5 transform origin-top-right transition-all duration-200">
-                                        <div className="px-4 py-2 border-b border-gray-50">
-                                            <p className="text-xs text-gray-500">Signed in as</p>
-                                            <p className="text-sm font-semibold text-gray-900 truncate">{user.email || user.name}</p>
+                                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-900 rounded-2xl shadow-xl py-2 border border-gray-100 dark:border-gray-800 ring-1 ring-black ring-opacity-5 transform origin-top-right transition-all duration-200 z-50">
+                                        <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Signed in as</p>
+                                            <p className="text-sm font-bold text-gray-900 dark:text-white truncate mt-0.5">{user.email || user.name}</p>
                                         </div>
-                                        <Link 
-                                            href="/dashboard" 
-                                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors"
-                                            onClick={() => setProfileDropdownOpen(false)}
-                                        >
-                                            <LayoutDashboard className="w-4 h-4 mr-2" />
-                                            Dashboard
-                                        </Link>
-                                        <Link 
-                                            href="/dashboard/bookings" 
-                                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors"
-                                            onClick={() => setProfileDropdownOpen(false)}
-                                        >
-                                            <Calendar className="w-4 h-4 mr-2" />
-                                            My Bookings
-                                        </Link>
-                                        <button 
-                                            onClick={handleLogout}
-                                            className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                                        >
-                                            <LogOut className="w-4 h-4 mr-2" />
-                                            Sign out
-                                        </button>
+                                        <div className="p-2">
+                                            <Link 
+                                                href="/dashboard" 
+                                                className="flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:text-rose-600 dark:hover:text-rose-400 transition-colors rounded-xl"
+                                                onClick={() => setProfileDropdownOpen(false)}
+                                            >
+                                                <LayoutDashboard className="w-4 h-4 mr-3" />
+                                                Dashboard
+                                            </Link>
+                                            <Link 
+                                                href="/dashboard/bookings" 
+                                                className="flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:text-rose-600 dark:hover:text-rose-400 transition-colors rounded-xl"
+                                                onClick={() => setProfileDropdownOpen(false)}
+                                            >
+                                                <Calendar className="w-4 h-4 mr-3" />
+                                                My Bookings
+                                            </Link>
+                                        </div>
+                                        <div className="border-t border-gray-100 dark:border-gray-800 mt-1 p-2">
+                                            <button 
+                                                onClick={handleLogout}
+                                                className="flex w-full items-center px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors"
+                                            >
+                                                <LogOut className="w-4 h-4 mr-3" />
+                                                Sign out
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -175,13 +208,13 @@ const Navbar = () => {
                             <div className="flex items-center space-x-3">
                                 <Link 
                                     href="/login" 
-                                    className="text-gray-600 hover:text-rose-600 font-medium text-sm transition-colors"
+                                    className="text-gray-600 dark:text-gray-300 hover:text-rose-600 dark:hover:text-rose-400 font-medium text-sm transition-colors"
                                 >
                                     Log in
                                 </Link>
                                 <Link 
                                     href="/register" 
-                                    className="bg-gray-900 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                                    className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-5 py-2.5 rounded-full text-sm font-bold hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                                 >
                                     Sign up
                                 </Link>
@@ -190,10 +223,20 @@ const Navbar = () => {
                     </div>
 
                     {/* Mobile Menu Button */}
-                    <div className="md:hidden flex items-center">
+                    <div className="md:hidden flex items-center space-x-4">
+                        <button
+                            onClick={toggleTheme}
+                            className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none"
+                        >
+                            {theme === 'dark' ? (
+                                <Sun className="w-5 h-5" />
+                            ) : (
+                                <Moon className="w-5 h-5" />
+                            )}
+                        </button>
                         <button 
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="text-gray-600 hover:text-gray-900 focus:outline-none p-2 rounded-md hover:bg-gray-100 transition-colors"
+                            className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                         >
                             {mobileMenuOpen ? (
                                 <X className="w-6 h-6" />
@@ -207,7 +250,7 @@ const Navbar = () => {
 
             {/* Mobile Menu Overlay */}
             <div 
-                className={`md:hidden fixed inset-0 z-40 bg-white/95 backdrop-blur-xl transition-transform duration-300 ease-in-out ${
+                className={`md:hidden fixed inset-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl transition-transform duration-300 ease-in-out ${
                     mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
                 }`}
                 style={{ top: '60px', height: 'calc(100vh - 60px)' }}
@@ -220,51 +263,59 @@ const Navbar = () => {
                             onClick={() => setMobileMenuOpen(false)}
                             className={`text-lg font-medium px-4 py-3 rounded-xl transition-colors ${
                                 isActive(link.href) 
-                                ? 'bg-rose-50 text-rose-600' 
-                                : 'text-gray-600 hover:bg-gray-50'
+                                ? 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400' 
+                                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                             }`}
                         >
                             {link.name}
                         </Link>
                     ))}
                     
-                    <div className="border-t border-gray-100 my-2 pt-2"></div>
+                    <div className="border-t border-gray-100 dark:border-gray-800 my-2 pt-2"></div>
 
                     {user ? (
                         <>
-                            <div className="px-4 py-2">
-                                <p className="text-sm text-gray-500">Signed in as</p>
-                                <p className="font-semibold text-gray-900">{user.name}</p>
+                            <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-xl mb-2">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">Signed in as</p>
+                                <p className="font-bold text-gray-900 dark:text-white">{user.name}</p>
                             </div>
                             <Link 
                                 href="/dashboard"
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="flex items-center px-4 py-3 text-lg font-medium text-gray-600 hover:bg-gray-50 rounded-xl"
+                                className="flex items-center px-4 py-3 text-lg font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl"
                             >
                                 <LayoutDashboard className="w-5 h-5 mr-3" />
                                 Dashboard
                             </Link>
+                            <Link 
+                                href="/dashboard/bookings"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="flex items-center px-4 py-3 text-lg font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl"
+                            >
+                                <Calendar className="w-5 h-5 mr-3" />
+                                My Bookings
+                            </Link>
                             <button 
                                 onClick={handleLogout}
-                                className="flex items-center w-full px-4 py-3 text-lg font-medium text-red-600 hover:bg-red-50 rounded-xl"
+                                className="flex items-center w-full px-4 py-3 text-lg font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl"
                             >
                                 <LogOut className="w-5 h-5 mr-3" />
                                 Sign out
                             </button>
                         </>
                     ) : (
-                        <div className="flex flex-col space-y-3 px-4">
+                        <div className="flex flex-col space-y-3 px-4 pt-2">
                             <Link 
                                 href="/login"
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="w-full text-center py-3 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
+                                className="w-full text-center py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                             >
                                 Log in
                             </Link>
                             <Link 
                                 href="/register"
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="w-full text-center py-3 rounded-xl bg-gray-900 text-white font-semibold hover:bg-gray-800 transition-colors shadow-lg"
+                                className="w-full text-center py-3.5 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors shadow-lg"
                             >
                                 Sign up
                             </Link>

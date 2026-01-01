@@ -2,6 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import CountUp from 'react-countup';
 import { Baby, Users, Stethoscope, ArrowRight, CheckCircle } from 'lucide-react';
 
 const fadeInUp = {
@@ -27,7 +28,7 @@ const ServicesPage = () => {
       icon: Baby,
       description: 'Professional babysitting for your little ones. Safe, fun, and educational activities included.',
       color: 'bg-blue-100 text-blue-600',
-      price: '$15/hr',
+      priceVal: 15,
       features: ['Certified Babysitters', 'Educational Activities', 'Meal Preparation', 'Bedtime Routines']
     },
     {
@@ -36,7 +37,7 @@ const ServicesPage = () => {
       icon: Users,
       description: 'Compassionate companionship and assistance with daily activities for your seniors.',
       color: 'bg-purple-100 text-purple-600',
-      price: '$20/hr',
+      priceVal: 20,
       features: ['Medication Reminders', 'Mobility Assistance', 'Companionship', 'Light Housekeeping']
     },
     {
@@ -45,7 +46,7 @@ const ServicesPage = () => {
       icon: Stethoscope,
       description: 'Dedicated support for recovery and health monitoring by certified nurses.',
       color: 'bg-rose-100 text-rose-600',
-      price: '$25/hr',
+      priceVal: 25,
       features: ['Certified Nurses', 'Vitals Monitoring', 'Medication Administration', 'Post-Op Care']
     }
   ];
@@ -97,7 +98,16 @@ const ServicesPage = () => {
               <div className="p-6 bg-gray-50 border-t border-gray-100 mt-auto">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-sm text-gray-500">Starting from</span>
-                  <span className="text-2xl font-bold text-gray-900">{service.price}</span>
+                  <span className="text-2xl font-bold text-gray-900">
+                    <CountUp
+                      end={service.priceVal}
+                      prefix="$"
+                      suffix="/hr"
+                      duration={2.5}
+                      enableScrollSpy
+                      scrollSpyOnce
+                    />
+                  </span>
                 </div>
                 <Link 
                   href={`/services/${service.id}`}
