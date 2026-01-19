@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Calendar, MapPin, DollarSign, Clock, CheckCircle } from "lucide-react";
 
-const BookingPage = () => {
+const BookingPageContent = () => {
     const params = useParams();
     const router = useRouter();
     const { data: session, status } = useSession();
@@ -99,30 +99,30 @@ const BookingPage = () => {
                                         <input 
                                             type="date" 
                                             name="date"
-                                            required
-                                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                            value={formData.date}
                                             onChange={handleInputChange}
+                                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
                                         />
                                     </div>
-                                    <div className="flex gap-4">
-                                        <div className="flex-1">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
                                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Duration</label>
                                             <input 
                                                 type="number" 
                                                 name="duration"
                                                 min="1"
                                                 value={formData.duration}
-                                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                                 onChange={handleInputChange}
+                                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
                                             />
                                         </div>
-                                        <div className="flex-1">
+                                        <div>
                                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit</label>
                                             <select 
                                                 name="durationType"
                                                 value={formData.durationType}
-                                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                                 onChange={handleInputChange}
+                                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
                                             >
                                                 <option value="days">Days</option>
                                                 <option value="hours">Hours</option>
@@ -131,8 +131,6 @@ const BookingPage = () => {
                                     </div>
                                 </div>
                             </div>
-
-                            <hr className="border-gray-100 dark:border-gray-700" />
 
                             {/* Section 2: Location */}
                             <div>
@@ -143,18 +141,14 @@ const BookingPage = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Division</label>
-                                        <select 
-                                            name="division" 
-                                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                        <input 
+                                            type="text" 
+                                            name="division"
+                                            placeholder="e.g. Dhaka"
+                                            value={formData.division}
                                             onChange={handleInputChange}
-                                        >
-                                            <option value="">Select Division</option>
-                                            <option value="Dhaka">Dhaka</option>
-                                            <option value="Chittagong">Chittagong</option>
-                                            <option value="Sylhet">Sylhet</option>
-                                            <option value="Khulna">Khulna</option>
-                                            {/* Add more */}
-                                        </select>
+                                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
+                                        />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">District</label>
@@ -162,8 +156,9 @@ const BookingPage = () => {
                                             type="text" 
                                             name="district"
                                             placeholder="e.g. Dhaka"
-                                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                                            value={formData.district}
                                             onChange={handleInputChange}
+                                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
                                         />
                                     </div>
                                 </div>
@@ -173,41 +168,58 @@ const BookingPage = () => {
                                         name="address"
                                         rows="3"
                                         placeholder="House No, Road No, Area..."
-                                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                                        value={formData.address}
                                         onChange={handleInputChange}
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
                                     ></textarea>
                                 </div>
                             </div>
 
-                            <hr className="border-gray-100 dark:border-gray-700" />
-
-                            {/* Section 3: Cost & Confirm */}
+                            {/* Section 3: Cost Summary */}
                             <div className="bg-gray-50 dark:bg-gray-700/30 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-                                <div className="flex justify-between items-center mb-4">
-                                    <span className="text-gray-600 dark:text-gray-300">Service Rate</span>
-                                    <span className="font-medium text-gray-900 dark:text-white">${service.price} / {formData.durationType === 'hours' ? 'day (approx)' : 'day'}</span>
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                                    <DollarSign className="w-5 h-5 mr-2 text-rose-600 dark:text-rose-500" />
+                                    Cost Summary
+                                </h3>
+                                <div className="space-y-3">
+                                    <div className="flex justify-between text-gray-600 dark:text-gray-400">
+                                        <span>Service Rate</span>
+                                        <span>${service.price} / day</span>
+                                    </div>
+                                    <div className="flex justify-between text-gray-600 dark:text-gray-400">
+                                        <span>Duration</span>
+                                        <span>{formData.duration} {formData.durationType}</span>
+                                    </div>
+                                    <div className="h-px bg-gray-200 dark:bg-gray-600 my-2"></div>
+                                    <div className="flex justify-between text-lg font-bold text-gray-900 dark:text-white">
+                                        <span>Total Amount</span>
+                                        <span>${totalCost.toFixed(2)}</span>
+                                    </div>
                                 </div>
-                                <div className="flex justify-between items-center mb-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                                    <span className="text-lg font-bold text-gray-900 dark:text-white">Total Estimated Cost</span>
-                                    <span className="text-2xl font-bold text-rose-600 dark:text-rose-500">${totalCost.toFixed(2)}</span>
-                                </div>
-                                
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-4 pt-4">
+                                <button 
+                                    onClick={() => router.back()}
+                                    className="w-full py-3 px-6 rounded-xl border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                                >
+                                    Cancel
+                                </button>
                                 <button 
                                     onClick={handleConfirmBooking}
                                     disabled={loading}
-                                    className="w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-bold hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl flex items-center justify-center"
+                                    className="w-full py-3 px-6 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700 transition-colors shadow-lg shadow-rose-200 dark:shadow-rose-900/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                                 >
                                     {loading ? (
-                                        <span className="flex items-center">
-                                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white dark:text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
+                                        <>
+                                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                                             Processing...
-                                        </span>
+                                        </>
                                     ) : (
                                         <>
-                                            Confirm Booking <CheckCircle className="ml-2 w-5 h-5" />
+                                            <CheckCircle className="w-5 h-5 mr-2" />
+                                            Confirm Booking
                                         </>
                                     )}
                                 </button>
@@ -220,4 +232,4 @@ const BookingPage = () => {
     );
 };
 
-export default BookingPage;
+export default BookingPageContent;
