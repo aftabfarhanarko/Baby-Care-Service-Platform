@@ -1,0 +1,56 @@
+"use server";
+
+import { collections, dbConnect } from "@/lib/databaseConnect";
+import { ObjectId } from "mongodb";
+
+export const getServerData = async (query) => {
+  const page = parseInt(query?.page) || 1;
+  const limit = parseInt(query?.limit) || 6;
+  const search = query?.search || "";
+  const sort = query?.sort || "";
+
+  const skip = (page - 1) * limit;
+
+  const filter = {};
+  if (search) {
+    filter.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  let sortOptions = {};
+  if (sort === "price_asc") {
+    sortOptions = { priceVal: 1 };
+  } else if (sort === "price_desc") {
+    sortOptions = { priceVal: -1 };
+  }
+
+  const collection = dbConnect(collections.SERVICES);
+  const totalCount = await collection.countDocuments(filter);
+  const data = await collection
+    .find(filter)
+    .sort(sortOptions)
+    .skip(skip)
+    .limit(limit)
+    .toArray();
+
+  // Convert each item's id to string (assuming _id is ObjectId)
+  const services = data.map((item) => ({
+    ...item,
+    id: item.id ? String(item.id) : undefined, // if you use custom id
+    _id: item._id ? item._id.toString() : undefined, // if you use MongoDB ObjectId
+  }));
+
+  return { services, totalCount };
+};
+
+export const getSingleServices = async (id) => {
+  const data = await dbConnect(collections.SERVICES).findOne({
+    _id: new ObjectId(id),
+  });
+  if (data) {
+    data._id = data._id.toString();
+  }
+  return data;
+};

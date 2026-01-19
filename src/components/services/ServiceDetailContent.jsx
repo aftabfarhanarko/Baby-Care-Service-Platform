@@ -12,8 +12,7 @@ import {
 } from "lucide-react";
 
 const ServiceDetailContent = () => {
-  const params = useParams();
-  const { service_id } = params;
+  
 
   // Mock Data (In a real app, fetch from API)
   const services = [
