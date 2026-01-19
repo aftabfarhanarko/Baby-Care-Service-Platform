@@ -1,12 +1,8 @@
+"use client";
 import React from "react";
 import { motion } from "framer-motion";
 import CountUp from "react-countup";
 import { Star, Clock, Smile, ShieldCheck } from "lucide-react";
-
-const fadeInUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
-};
 
 const staggerContainer = {
   hidden: { opacity: 0 },

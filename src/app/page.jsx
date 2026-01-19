@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import Banner from "@/components/home/Banner";
 import PartnersCompany from "@/components/home/PartnersCompany";
