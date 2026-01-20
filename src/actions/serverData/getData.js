@@ -46,13 +46,18 @@ export const getServerData = async (query) => {
 };
 
 export const getSingleServices = async (id) => {
-  const data = await dbConnect(collections.SERVICES).findOne({
-    _id: new ObjectId(id),
-  });
-  if (data) {
-    data._id = data._id.toString();
+  try {
+    const data = await dbConnect(collections.SERVICES).findOne({
+      _id: new ObjectId(id),
+    });
+    if (data) {
+      data._id = data._id.toString();
+    }
+    return data;
+  } catch (error) {
+    console.error("Error fetching single service:", error);
+    return null;
   }
-  return data;
 };
 
 export const getAllServices = async () => {
