@@ -100,7 +100,7 @@ const Navbar = () => {
           : "bg-gradient-to-b from-white/40 dark:from-gray-950/50 to-transparent backdrop-blur-sm border-b border-transparent py-4"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4  lg:px-0">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="">

@@ -25,7 +25,6 @@ const BookingsContent = ({ allBookig = [] }) => {
 
   const hadelConfrie = (id) => {
     console.log("penndinng to updeat Conferam", id);
-    
   };
 
   return (
