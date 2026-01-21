@@ -49,6 +49,8 @@ import {
 import CountUp from "react-countup";
 import { motion, AnimatePresence } from "framer-motion";
 import Modal from "../modal/Modal";
+import { singleData } from "@/actions/serverData/getData";
+import { useQuery } from "@tanstack/react-query";
 
 const iconMap = {
   Baby,
@@ -98,14 +100,28 @@ const staggerContainer = {
 const ServiceDetailContent = ({ service }) => {
   const [activeImage, setActiveImage] = useState(0);
   const [isOpenModal, SetIsOpenModal] = useState(false);
-  const [locationData, setLocationData] = useState([]);
 
-  React.useEffect(() => {
-    fetch("/resisterData.json")
-      .then((res) => res.json())
-      .then((data) => setLocationData(data))
-      .catch((err) => console.error("Failed to load location data", err));
-  }, []);
+  // Fetch Location Data using TanStack Query
+  const { data: locationData = [] } = useQuery({
+    queryKey: ["locationData"],
+    queryFn: async () => {
+      const res = await fetch("/resisterData.json");
+      return res.json();
+    },
+  });
+
+  // Fetch Booking Status using TanStack Query
+  const { data: bookingStatus } = useQuery({
+    queryKey: ["bookingStatus", service?._id || service?.id],
+    queryFn: async () => {
+      const query = { service_id: service?._id || service?.id };
+      const result = await singleData(query);
+      console.log("Single Data Result:", result);
+      return result;
+    },
+    enabled: !!(service?._id || service?.id),
+  });
+  console.log("actived", bookingStatus);
 
   if (!service) {
     return (
@@ -152,7 +168,6 @@ const ServiceDetailContent = ({ service }) => {
   const showModal = () => {
     SetIsOpenModal(true);
     console.log("Data Open");
-    
   };
 
   return (
@@ -471,16 +486,27 @@ const ServiceDetailContent = ({ service }) => {
                   </div>
                 </div>
 
-                <button
-                  onClick={showModal}
-                  className="group relative block w-full py-4 px-6 bg-gradient-to-r from-rose-600 to-purple-600 text-white rounded-xl font-bold text-center shadow-lg shadow-rose-500/30 hover:shadow-rose-500/50 hover:-translate-y-0.5 transition-all overflow-hidden"
-                >
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                    Book Now{" "}
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </span>
-                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                </button>
+                {bookingStatus ? (
+                  <button
+                    disabled
+                    className="group relative block w-full py-4 px-6 bg-gray-400 dark:bg-gray-600 text-white rounded-xl font-bold text-center cursor-not-allowed shadow-none transition-all overflow-hidden"
+                  >
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      Already Booked <CheckCircle className="w-5 h-5" />
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={showModal}
+                    className="group relative block w-full py-4 px-6 bg-gradient-to-r from-rose-600 to-purple-600 text-white rounded-xl font-bold text-center shadow-lg shadow-rose-500/30 hover:shadow-rose-500/50 hover:-translate-y-0.5 transition-all overflow-hidden"
+                  >
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      Book Now{" "}
+                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                  </button>
+                )}
 
                 <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                   <ShieldCheck className="w-3 h-3 text-green-500" />

@@ -18,6 +18,7 @@ import {
   DollarSign,
   Home,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 export const DashboardContext = createContext();
 
@@ -26,10 +27,13 @@ export const useDashboard = () => useContext(DashboardContext);
 const DashboardLayoutContent = ({ children }) => {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [userRole, setUserRole] = useState("user"); // 'user' | 'provider'
+  const [userRole, setUserRole] = useState("user"); 
+  const { data } = useSession();
+  console.log("session data", data?.user?.role);
+  const roleManeze = data?.user?.role;
 
   const navItems =
-    userRole === "user"
+    roleManeze === "user"
       ? [
           { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
           { name: "My Bookings", href: "/dashboard/bookings", icon: Calendar },
@@ -79,30 +83,6 @@ const DashboardLayoutContent = ({ children }) => {
             <Link href="/dashboard" className="text-xl font-bold text-rose-600">
               Care.xyz Dashboard
             </Link>
-
-            {/* Role Switcher (For Demo Purpose) */}
-            <div className="hidden md:flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1 ml-8">
-              <button
-                onClick={() => setUserRole("user")}
-                className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${
-                  userRole === "user"
-                    ? "bg-white dark:bg-gray-600 text-rose-600 dark:text-rose-400 shadow-sm"
-                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-                }`}
-              >
-                Regular User
-              </button>
-              <button
-                onClick={() => setUserRole("provider")}
-                className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${
-                  userRole === "provider"
-                    ? "bg-white dark:bg-gray-600 text-rose-600 dark:text-rose-400 shadow-sm"
-                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-                }`}
-              >
-                Service Provider
-              </button>
-            </div>
           </div>
           <div className="flex items-center gap-4">
             <Link

@@ -2,6 +2,8 @@
 
 import { collections, dbConnect } from "@/lib/databaseConnect";
 import { ObjectId } from "mongodb";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
 export const getServerData = async (query) => {
   const page = parseInt(query?.page) || 1;
@@ -111,4 +113,42 @@ export const savedServicesData = async (bookingData) => {
     acknowledged: result.acknowledged,
     insertedId: result.insertedId.toString(),
   };
+};
+
+export const singleData = async (query) => {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return null;
+    }
+    console.log("MY Session", session.user.email, "My Id", query.service_id);
+
+    // Create a flexible query for serviceId to match either String or ObjectId
+    let serviceIdCondition = { serviceId: query.service_id };
+    if (query.service_id && ObjectId.isValid(query.service_id)) {
+      serviceIdCondition = {
+        $or: [
+          { serviceId: query.service_id },
+          { serviceId: new ObjectId(query.service_id) },
+        ],
+      };
+    }
+
+    const myQuery = {
+      ...serviceIdCondition,
+      "user.email": session?.user?.email,
+    };
+
+    const result = await dbConnect(collections.BOOKING).findOne(myQuery);
+    if (result) {
+      return {
+        _id: result._id.toString(),
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching single booking data:", error);
+    return null;
+  }
 };
