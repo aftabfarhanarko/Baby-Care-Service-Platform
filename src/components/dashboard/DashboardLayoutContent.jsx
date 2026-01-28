@@ -72,6 +72,11 @@ const DashboardLayoutContent = ({ children }) => {
           { name: "My Services", href: "/dashboard/services", icon: Briefcase },
           { name: "Earnings", href: "/dashboard/earnings", icon: DollarSign },
           { name: "Profile", href: "/dashboard/profile", icon: User },
+          {
+            name: "Messages",
+            href: "/dashboard/messages",
+            icon: MessageSquare,
+          },
           { name: "Settings", href: "/dashboard/settings", icon: Settings },
         ];
 

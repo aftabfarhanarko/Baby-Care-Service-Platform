@@ -96,13 +96,62 @@ export const getSingleCaregiver = async (id) => {
 // From Data Saved DB
 
 export const fromDataSaved = async (formData) => {
-  const result = await dbConnect(collections.FROMDATA).insertOne(formData);
+  const dataWithDate = {
+    ...formData,
+    createdAt: new Date().toISOString(),
+  };
+  const result = await dbConnect(collections.FROMDATA).insertOne(dataWithDate);
   console.log("Data", result);
 
   return {
     acknowledged: result.acknowledged,
     insertedId: result.insertedId.toString(),
   };
+};
+
+export const getMessagesData = async (
+  page = 1,
+  limit = 6,
+  search = "",
+  filter = "All"
+) => {
+  try {
+    const skip = (page - 1) * limit;
+    const collection = dbConnect(collections.FROMDATA);
+
+    const query = {};
+
+    if (search) {
+      query.$or = [
+        { firstName: { $regex: search, $options: "i" } },
+        { lastName: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    if (filter && filter !== "All") {
+      query.serviceType = filter;
+    }
+
+    const totalCount = await collection.countDocuments(query);
+
+    const data = await collection
+      .find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+
+    const messages = data.map((item) => ({
+      ...item,
+      _id: item._id.toString(),
+    }));
+
+    return { messages, totalCount };
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    return { messages: [], totalCount: 0 };
+  }
 };
 
 // All Bookings Data Saved One Services

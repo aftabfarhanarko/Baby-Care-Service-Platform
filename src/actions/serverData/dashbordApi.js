@@ -285,3 +285,18 @@ export const getMyAddcaregivers = async (email) => {
     throw error;
   }
 };
+
+// Contact Messaage Data
+export const getMessagesData = async () => {
+  try {
+    const result = await dbConnect(collections.FROMDATA).find().toArray();
+
+    return result.map((item) => ({
+      ...item,
+      _id: item._id.toString(),
+    }));
+  } catch (error) {
+    console.error("Error fetching messages data:", error);
+    return [];
+  }
+};
