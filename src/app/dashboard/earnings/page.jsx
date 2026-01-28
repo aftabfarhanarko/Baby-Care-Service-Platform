@@ -9,8 +9,9 @@ export default async function EarningsPage() {
     console.log(earningsData);
     
     return <EarningsContent 
-        serviceChartData={earningsData.serviceChartData}
-        caregiverChartData={earningsData.caregiverChartData}
+        dailyChartData={earningsData.dailyChartData}
+        totalServiceEarnings={earningsData.totalServiceEarnings}
+        totalCaregiverEarnings={earningsData.totalCaregiverEarnings}
         recentServices={earningsData.recentServices}
         recentCaregivers={earningsData.recentCaregivers}
     />;

@@ -113,11 +113,11 @@ export const updateUserRole = async (id, role) => {
       },
     };
     const result = await dbConnect(collections.USER).updateOne(query, update);
-    
+
     if (result.matchedCount === 0) {
       return { success: false, message: "User not found" };
     }
-    
+
     return { success: true, message: "User role updated successfully" };
   } catch (error) {
     console.error("Update Role Error:", error);
@@ -130,11 +130,11 @@ export const deleteUser = async (id) => {
   try {
     const query = { _id: new ObjectId(id) };
     const result = await dbConnect(collections.USER).deleteOne(query);
-    
+
     if (result.deletedCount === 0) {
       return { success: false, message: "User not found" };
     }
-    
+
     return { success: true, message: "User deleted successfully" };
   } catch (error) {
     console.error("Delete User Error:", error);
@@ -510,102 +510,214 @@ export const getEarningsData = async (email) => {
       .find({ "contactInfo.email": email })
       .project({ _id: 1 })
       .toArray();
-    
-    const myServiceIds = myServices.map(s => s._id.toString());
+
+    const myServiceIds = myServices.map((s) => s._id.toString());
 
     // 2. Get User's Caregivers IDs (provider)
     const myCaregivers = await dbConnect(collections.CAREGIVERS)
       .find({ publishEmail: email })
       .project({ _id: 1 })
       .toArray();
-    
-    const myCaregiverIds = myCaregivers.map(c => c._id.toString());
+
+    const myCaregiverIds = myCaregivers.map((c) => c._id.toString());
 
     // 3. Aggregate Service Bookings (Earnings)
     const servicePipeline = [
       { $match: { serviceId: { $in: myServiceIds } } },
       {
         $facet: {
-          monthly: [
+          daily: [
             {
               $project: {
-                month: { $month: { $toDate: "$createdAt" } },
-                cost: { $toDouble: "$financials.totalCost" }
-              }
+                date: {
+                  $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+                },
+                cost: { $toDouble: "$financials.totalCost" },
+              },
             },
             {
               $group: {
-                _id: "$month",
-                total: { $sum: "$cost" }
-              }
-            }
+                _id: "$date",
+                total: { $sum: "$cost" },
+              },
+            },
+            { $sort: { _id: 1 } },
           ],
-          recent: [
-            { $sort: { createdAt: -1 } },
-            { $limit: 5 }
-          ]
-        }
-      }
+          recent: [{ $sort: { createdAt: -1 } }, { $limit: 5 }],
+        },
+      },
     ];
 
-    const serviceResults = await dbConnect(collections.BOOKING).aggregate(servicePipeline).toArray();
-    const serviceData = serviceResults[0] || { monthly: [], recent: [] };
+    const serviceResults = await dbConnect(collections.BOOKING)
+      .aggregate(servicePipeline)
+      .toArray();
+    const serviceData = serviceResults[0] || { daily: [], recent: [] };
 
     // 4. Aggregate Caregiver Bookings (Earnings)
     const caregiverPipeline = [
       { $match: { caregiverId: { $in: myCaregiverIds } } },
       {
         $facet: {
-          monthly: [
+          daily: [
             {
               $project: {
-                month: { $month: { $toDate: "$createdAt" } },
-                cost: { $toDouble: "$totalCost" }
-              }
+                date: {
+                  $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+                },
+                cost: { $toDouble: "$totalCost" },
+              },
             },
             {
               $group: {
-                _id: "$month",
-                total: { $sum: "$cost" }
-              }
-            }
+                _id: "$date",
+                total: { $sum: "$cost" },
+              },
+            },
+            { $sort: { _id: 1 } },
           ],
-          recent: [
-            { $sort: { createdAt: -1 } },
-            { $limit: 5 }
-          ]
-        }
-      }
+          recent: [{ $sort: { createdAt: -1 } }, { $limit: 5 }],
+        },
+      },
     ];
 
-    const caregiverResults = await dbConnect(collections.BOOKINGCAREGIVERS).aggregate(caregiverPipeline).toArray();
-    const caregiverData = caregiverResults[0] || { monthly: [], recent: [] };
+    const caregiverResults = await dbConnect(collections.BOOKINGCAREGIVERS)
+      .aggregate(caregiverPipeline)
+      .toArray();
+    const caregiverData = caregiverResults[0] || { daily: [], recent: [] };
 
-    // Helper to format chart data
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const formatChartData = (data) => {
-       const map = {};
-       monthNames.forEach((m, i) => map[i + 1] = 0);
-       data.forEach(d => {
-         if (d._id) map[d._id] = d.total;
-       });
-       return monthNames.map((m, i) => ({ month: m, amount: map[i + 1] }));
-    };
+    // Calculate Totals
+    const totalServiceEarnings = serviceData.daily.reduce(
+      (acc, curr) => acc + curr.total,
+      0,
+    );
+    const totalCaregiverEarnings = caregiverData.daily.reduce(
+      (acc, curr) => acc + curr.total,
+      0,
+    );
+
+    // Helper to format chart data (Daily)
+    // Merge service and caregiver daily data
+    const dailyMap = {};
+
+    // Process Service Data
+    serviceData.daily.forEach((d) => {
+      if (d._id) {
+        dailyMap[d._id] = (dailyMap[d._id] || 0) + d.total;
+      }
+    });
+
+    // Process Caregiver Data
+    caregiverData.daily.forEach((d) => {
+      if (d._id) {
+        dailyMap[d._id] = (dailyMap[d._id] || 0) + d.total;
+      }
+    });
+
+    // Convert map to array and sort by date
+    const sortedDates = Object.keys(dailyMap).sort();
+
+    const combinedDailyChartData = sortedDates.map((date) => {
+      const dateObj = new Date(date);
+      return {
+        date: date,
+        displayDate: dateObj.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        }), // "Jan 21"
+        amount: dailyMap[date],
+      };
+    });
+
+    // CHECK FOR EMPTY DATA & RETURN MOCK DATA (Fallback)
+    const isDataEmpty =
+      combinedDailyChartData.length === 0 &&
+      totalServiceEarnings === 0 &&
+      totalCaregiverEarnings === 0;
+
+    if (isDataEmpty) {
+      // Generate last 7 days mock data
+      const mockDailyChartData = [];
+      const today = new Date();
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        const dateStr = d.toISOString().split("T")[0];
+        mockDailyChartData.push({
+          date: dateStr,
+          displayDate: d.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+          }),
+          amount: Math.floor(Math.random() * 300) + 100, // Random 100-400
+        });
+      }
+
+      return {
+        dailyChartData: mockDailyChartData,
+        totalServiceEarnings: 1540.5,
+        totalCaregiverEarnings: 980.75,
+        recentServices: [
+          {
+            _id: "mock1",
+            user: { name: "Emma Wilson", email: "emma@example.com" },
+            serviceName: "Full Day Nanny",
+            financials: { totalCost: 180 },
+            createdAt: new Date().toISOString(),
+          },
+          {
+            _id: "mock2",
+            user: { name: "James Anderson", email: "james@example.com" },
+            serviceName: "Weekend Babysitting",
+            financials: { totalCost: 120 },
+            createdAt: new Date(Date.now() - 86400000).toISOString(),
+          },
+          {
+            _id: "mock3",
+            user: { name: "Sophia Martinez", email: "sophia@example.com" },
+            serviceName: "Infant Care",
+            financials: { totalCost: 250 },
+            createdAt: new Date(Date.now() - 172800000).toISOString(),
+          },
+        ],
+        recentCaregivers: [
+          {
+            _id: "mock4",
+            bookerName: "Oliver Thomas",
+            caregiverName: "Jessica Parker",
+            totalCost: 150,
+            createdAt: new Date().toISOString(),
+          },
+          {
+            _id: "mock5",
+            bookerName: "Lucas White",
+            caregiverName: "Emily Davis",
+            totalCost: 95,
+            createdAt: new Date(Date.now() - 86400000).toISOString(),
+          },
+        ],
+      };
+    }
 
     return {
-      serviceChartData: formatChartData(serviceData.monthly),
-      caregiverChartData: formatChartData(caregiverData.monthly),
-      recentServices: serviceData.recent.map(item => ({ ...item, _id: item._id.toString() })),
-      recentCaregivers: caregiverData.recent.map(item => ({ ...item, _id: item._id.toString() }))
+      dailyChartData: combinedDailyChartData,
+      totalServiceEarnings,
+      totalCaregiverEarnings,
+      recentServices: serviceData.recent.map((item) => ({
+        ...item,
+        _id: item._id.toString(),
+      })),
+      recentCaregivers: caregiverData.recent.map((item) => ({
+        ...item,
+        _id: item._id.toString(),
+      })),
     };
-
   } catch (error) {
     console.error("Error in getEarningsData:", error);
     return {
       serviceChartData: [],
       caregiverChartData: [],
       recentServices: [],
-      recentCaregivers: []
+      recentCaregivers: [],
     };
   }
 };

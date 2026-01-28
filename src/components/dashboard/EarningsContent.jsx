@@ -1,23 +1,23 @@
 "use client";
 import React from "react";
 import { DollarSign, TrendingUp, CreditCard, Download } from "lucide-react";
-import { BarChart } from "@mui/x-charts/BarChart";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 const EarningsContent = ({
-  serviceChartData = [],
-  caregiverChartData = [],
+  dailyChartData = [],
+  totalServiceEarnings = 0,
+  totalCaregiverEarnings = 0,
   recentServices = [],
   recentCaregivers = [],
 }) => {
-  // Calculate Totals
-  const totalServiceEarnings = serviceChartData.reduce(
-    (acc, curr) => acc + curr.amount,
-    0,
-  );
-  const totalCaregiverEarnings = caregiverChartData.reduce(
-    (acc, curr) => acc + curr.amount,
-    0,
-  );
   const totalRevenue = totalServiceEarnings + totalCaregiverEarnings;
 
   return (
@@ -84,57 +84,76 @@ const EarningsContent = ({
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Services Chart */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-            Services Earnings
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Earnings Overview
           </h3>
-          <div className="w-full overflow-hidden flex justify-center">
-            <BarChart
-              height={300}
-              series={[
-                {
-                  data: serviceChartData.map((d) => d.amount),
-                  label: "Revenue",
-                  color: "#3b82f6", // Blue
-                },
-              ]}
-              xAxis={[
-                {
-                  data: serviceChartData.map((d) => d.month),
-                  scaleType: "band",
-                },
-              ]}
-              margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
-            />
-          </div>
+          {/* <select className="text-sm border-none bg-transparent text-gray-500 focus:ring-0 cursor-pointer">
+            <option>Last 30 Days</option>
+            <option>Last 7 Days</option>
+          </select> */}
         </div>
 
-        {/* Caregiver Chart */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-            Caregiver Earnings
-          </h3>
-          <div className="w-full overflow-hidden flex justify-center">
-            <BarChart
-              height={300}
-              series={[
-                {
-                  data: caregiverChartData.map((d) => d.amount),
-                  label: "Revenue",
-                  color: "#f43f5e", // Rose
-                },
-              ]}
-              xAxis={[
-                {
-                  data: caregiverChartData.map((d) => d.month),
-                  scaleType: "band",
-                },
-              ]}
-              margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
-            />
-          </div>
+        <div className="h-[350px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart
+              data={dailyChartData}
+              margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+            >
+              <defs>
+                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#f43f5e" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke="#E5E7EB"
+                opacity={0.5}
+              />
+              <XAxis
+                dataKey="displayDate"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: "#6B7280", fontSize: 12 }}
+                dy={10}
+              />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: "#6B7280", fontSize: 12 }}
+                tickFormatter={(value) => `$${value}`}
+              />
+              <Tooltip
+                content={({ active, payload, label }) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <div className="bg-white dark:bg-gray-800 p-3 border border-gray-100 dark:border-gray-700 shadow-xl rounded-xl">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                          {label}
+                        </p>
+                        <p className="text-lg font-bold text-rose-600 dark:text-rose-400">
+                          ${payload[0].value.toFixed(2)}
+                        </p>
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="amount"
+                stroke="#f43f5e"
+                strokeWidth={3}
+                fillOpacity={1}
+                fill="url(#colorRevenue)"
+                animationDuration={1500}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
