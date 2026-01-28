@@ -89,6 +89,59 @@ export const deleteMyBooking = async (id) => {
   }
 };
 
+export const getAllUsers = async () => {
+  try {
+    const result = await dbConnect(collections.USER).find({}).toArray();
+    return result.map((item) => ({
+      ...item,
+      _id: item._id.toString(),
+    }));
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return [];
+  }
+};
+
+// Update User Role
+export const updateUserRole = async (id, role) => {
+  try {
+    const query = { _id: new ObjectId(id) };
+    const update = {
+      $set: {
+        role: role,
+        updatedAt: new Date().toISOString(),
+      },
+    };
+    const result = await dbConnect(collections.USER).updateOne(query, update);
+    
+    if (result.matchedCount === 0) {
+      return { success: false, message: "User not found" };
+    }
+    
+    return { success: true, message: "User role updated successfully" };
+  } catch (error) {
+    console.error("Update Role Error:", error);
+    return { success: false, message: "Failed to update role" };
+  }
+};
+
+// Delete User
+export const deleteUser = async (id) => {
+  try {
+    const query = { _id: new ObjectId(id) };
+    const result = await dbConnect(collections.USER).deleteOne(query);
+    
+    if (result.deletedCount === 0) {
+      return { success: false, message: "User not found" };
+    }
+    
+    return { success: true, message: "User deleted successfully" };
+  } catch (error) {
+    console.error("Delete User Error:", error);
+    return { success: false, message: "Failed to delete user" };
+  }
+};
+
 export const myCaregiverBookings = async (email) => {
   try {
     const result = await dbConnect(collections.BOOKINGCAREGIVERS)
