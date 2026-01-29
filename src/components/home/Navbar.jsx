@@ -20,6 +20,8 @@ import {
   Bell,
   Zap,
   Shield,
+  LogIn,
+  UserPlus,
 } from "lucide-react";
 
 const Navbar = () => {
@@ -135,11 +137,11 @@ const Navbar = () => {
                 {/* User Profile Button */}
                 <button
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                  className="flex items-center gap-3 px-3.5 py-2 rounded-full bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 hover:border-rose-500/50 dark:hover:border-rose-500/50 transition-all duration-300 shadow-md hover:shadow-lg group"
+                  className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200/60 dark:border-gray-700/60 hover:border-rose-500/30 hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 shadow-sm hover:shadow-md group"
                 >
                   {/* User Avatar */}
                   <div className="relative">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose-400 to-purple-500 flex items-center justify-center border-2 border-white dark:border-gray-800 shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-300">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-rose-100 to-purple-100 dark:from-rose-900/50 dark:to-purple-900/50 flex items-center justify-center border border-gray-100 dark:border-gray-700 shadow-inner group-hover:scale-105 transition-all duration-300">
                       {user?.image ? (
                         <img
                           src={user.image}
@@ -147,27 +149,27 @@ const Navbar = () => {
                           className="w-full h-full rounded-full object-cover"
                         />
                       ) : (
-                        <span className="text-white font-bold text-sm">
+                        <span className="text-rose-600 dark:text-rose-400 font-bold text-sm">
                           {getInitials(user?.name)}
                         </span>
                       )}
                     </div>
-                    <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white dark:border-gray-800 shadow-md"></div>
+                    <div className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white dark:border-gray-800 shadow-sm ring-1 ring-white/50 dark:ring-black/50"></div>
                   </div>
 
                   {/* User Name */}
-                  <div className="flex flex-col items-start max-w-xs">
-                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                  <div className="flex flex-col items-start text-left">
+                    <span className="text-sm font-bold text-gray-800 dark:text-gray-100 leading-none mb-1">
                       {user?.name?.split(" ")[0] || "User"}
                     </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                    <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider bg-gray-100 dark:bg-gray-700/50 px-1.5 py-0.5 rounded-md">
                       {user?.role || "Member"}
                     </span>
                   </div>
 
                   {/* Chevron */}
                   <ChevronDown
-                    className={`w-4 h-4 text-gray-600 dark:text-gray-400 transition-transform duration-300 ${
+                    className={`w-4 h-4 text-gray-400 group-hover:text-rose-500 transition-colors duration-300 ${
                       profileDropdownOpen ? "rotate-180" : ""
                     }`}
                   />
@@ -260,18 +262,20 @@ const Navbar = () => {
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <Link
                   href="/login"
-                  className="text-gray-700 dark:text-gray-300 font-bold text-sm hover:text-rose-600 dark:hover:text-rose-400 transition-colors px-4 py-2"
+                  className="flex items-center gap-2 px-5 py-2 rounded-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-bold text-sm hover:border-rose-500 hover:text-rose-600 dark:hover:border-rose-400 dark:hover:text-rose-400 transition-all duration-300"
                 >
-                  Log in
+                  <LogIn className="w-4 h-4" />
+                  <span>Log in</span>
                 </Link>
                 <Link
                   href="/register"
-                  className="bg-gradient-to-r from-rose-500 to-purple-600 text-white px-6 py-2.5 rounded-full text-sm font-bold hover:shadow-lg hover:shadow-rose-500/30 transition-all duration-300 hover:scale-105 active:scale-95"
+                  className="flex items-center gap-2 px-5 py-2 rounded-full border border-rose-500 text-rose-600 dark:text-rose-400 font-bold text-sm hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all duration-300"
                 >
-                  Sign up
+                  <UserPlus className="w-4 h-4" />
+                  <span>Sign up</span>
                 </Link>
               </div>
             )}
@@ -279,7 +283,7 @@ const Navbar = () => {
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-3">
-            <button
+            {/* <button
               onClick={toggleTheme}
               className="p-2 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none"
             >
@@ -288,7 +292,7 @@ const Navbar = () => {
               ) : (
                 <Moon className="w-5 h-5" />
               )}
-            </button>
+            </button> */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -399,16 +403,18 @@ const Navbar = () => {
                 <Link
                   href="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block  w-full text-center py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 font-bold hover:border-rose-500 hover:text-rose-600 dark:hover:border-rose-400 dark:hover:text-rose-400 transition-all duration-300"
                 >
-                  Log in
+                  <LogIn className="w-5 h-5" />
+                  <span>Log in</span>
                 </Link>
                 <Link
                   href="/register"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block w-full text-center py-3 rounded-xl bg-gradient-to-r from-rose-500 to-purple-600 text-white font-bold hover:shadow-lg hover:shadow-rose-500/30 transition-all duration-300"
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-rose-500 text-rose-600 dark:text-rose-400 font-bold hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all duration-300"
                 >
-                  Sign up
+                  <UserPlus className="w-5 h-5" />
+                  <span>Sign up</span>
                 </Link>
               </div>
             )}

@@ -4,6 +4,11 @@ import ServicesPageContent from "@/components/services/ServicesPageContent";
 import { getServerData } from "@/actions/serverData/getData";
 import getQueryClient from "@/lib/getQueryClient";
 
+export const metadata = {
+  title: "Our Services",
+  description: "Explore our wide range of care services including babysitting, nanny services, elder care, and more.",
+};
+
 const ServicesPage = async ({ searchParams }) => {
   const query = await searchParams;
   const page = parseInt(query?.page) || 1;

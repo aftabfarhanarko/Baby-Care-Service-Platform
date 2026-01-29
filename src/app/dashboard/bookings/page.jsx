@@ -4,6 +4,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { myAllBookings, myCaregiverBookings } from "@/actions/serverData/dashbordApi";
 
+export const metadata = {
+  title: "My Bookings",
+};
+
 const BookingsPage = async () => {
   const { user } = await getServerSession(authOptions);
   // console.log("UUU", user?.email);

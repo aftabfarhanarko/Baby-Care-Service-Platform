@@ -4,6 +4,10 @@ import { getCurrentUser } from "@/actions/serverData/dashbordApi";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
+export const metadata = {
+  title: "My Profile",
+};
+
 const ProfilePage = async () => {
   const { user } = await getServerSession(authOptions);
 
