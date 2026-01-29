@@ -12,6 +12,7 @@ import {
   Play,
 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const SLIDES = [
   {
@@ -77,6 +78,7 @@ const SLIDES = [
 ];
 
 const Banner = () => {
+  const router = useRouter();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
@@ -137,11 +139,9 @@ const Banner = () => {
 
             {/* Headline */}
             <div className="space-y-6">
-              <h1 className="text-5xl lg:text-7xl font-bold leading-[1.1] text-gray-900 tracking-tight">
+              <h1 className="text-5xl lg:text-7xl font-bold leading-[1.1] text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-pink-600 tracking-tight pb-2">
                 Premium Care <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-pink-600">
-                  For Your Loved Ones
-                </span>
+                For Your Loved Ones
               </h1>
               <p className="text-lg lg:text-xl text-gray-600 leading-relaxed max-w-xl font-medium">
                 Experience the peace of mind that comes with professional,
@@ -152,14 +152,16 @@ const Banner = () => {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-2">
-              <button className="px-8 py-4.5 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-600 text-white font-bold shadow-xl shadow-rose-600/20 hover:shadow-rose-600/30 transition-all hover:-translate-y-1 flex items-center justify-center gap-3 group">
+              <button onClick={()=> router.push("/caregivers")} className="px-8 py-4.5 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-600 text-white font-bold shadow-xl shadow-rose-600/20 hover:shadow-rose-600/30 transition-all hover:-translate-y-1 flex items-center justify-center gap-3 group">
                 <Search className="w-5 h-5" />
                 Find a Caregiver
                 <ArrowRight className="w-4 h-4 opacity-70 group-hover:translate-x-1 transition-transform" />
               </button>
-              <button className="px-8 py-4.5 rounded-2xl bg-white border border-gray-200 text-gray-700 font-bold hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md">
-                <Play className="w-5 h-5 fill-rose-600 text-rose-600" />
-                How it Works
+            
+              <button  onClick={()=> router.push("/services")} className="px-8 py-4.5 rounded-2xl bg-white border border-gray-200 text-gray-700 font-bold hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md">
+               <Search className="w-5 h-5" />
+                Find a Services
+                <ArrowRight className="w-4 h-4 opacity-70 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
 

@@ -15,7 +15,9 @@ export async function generateMetadata({ params }) {
 
   return {
     title: `${service.name || "Service Details"}`,
-    description: service.description ? service.description.slice(0, 160) : "View detailed information about this service on Care.xyz.",
+    description: service.description
+      ? service.description.slice(0, 160)
+      : "View detailed information about this service on Care.xyz.",
     openGraph: {
       title: service.name,
       description: service.description,
@@ -28,9 +30,7 @@ const ServiceDetailPage = async ({ params }) => {
   const { service_id } = await params;
   const service = await getSingleServices(service_id);
 
-
-  return <ServiceDetailContent service={service} 
-  />;
+  return <ServiceDetailContent service={service} />;
 };
 
 export default ServiceDetailPage;

@@ -18,14 +18,24 @@ export const metadata = {
     default: "Care.xyz - Professional Care Services",
     template: "%s | Care.xyz",
   },
-  description: "Find trusted babysitters, nannies, and care providers near you. Professional and verified caregivers for your peace of mind.",
-  keywords: ["babysitter", "nanny", "childcare", "elder care", "pet sitting", "home care", "professional caregivers"],
+  description:
+    "Find trusted babysitters, nannies, and care providers near you. Professional and verified caregivers for your peace of mind.",
+  keywords: [
+    "babysitter",
+    "nanny",
+    "childcare",
+    "elder care",
+    "pet sitting",
+    "home care",
+    "professional caregivers",
+  ],
   authors: [{ name: "Care.xyz Team" }],
   creator: "Care.xyz",
   publisher: "Care.xyz",
   openGraph: {
     title: "Care.xyz - Professional Care Services",
-    description: "Find trusted babysitters, nannies, and care providers near you.",
+    description:
+      "Find trusted babysitters, nannies, and care providers near you.",
     url: "https://baby-sitting-app.vercel.app",
     siteName: "Care.xyz",
     locale: "en_US",
@@ -42,7 +52,8 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Care.xyz - Professional Care Services",
-    description: "Find trusted babysitters, nannies, and care providers near you.",
+    description:
+      "Find trusted babysitters, nannies, and care providers near you.",
     creator: "@carexyz", // Replace with actual handle
     images: ["/og-image.jpg"],
   },
@@ -65,9 +76,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>
-          {children}
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

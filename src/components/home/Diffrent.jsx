@@ -45,28 +45,28 @@ const Diffrent = () => {
       role: "Certified Nanny",
       rating: 4.9,
       reviews: 124,
-      image: "https://i.ibb.co.com/27zwCGGD/image.png",
+      image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400",
     },
     {
       name: "David R.",
       role: "Elderly Specialist",
       rating: 5.0,
       reviews: 89,
-      image: "https://i.ibb.co.com/1GsDLbhW/image.png",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400",
     },
     {
       name: "Jessica T.",
       role: "Pediatric Nurse",
       rating: 4.8,
       reviews: 215,
-      image: "https://i.ibb.co.com/6R7k0TMW/image.png",
+      image: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=400",
     },
     {
       name: "Maria G.",
       role: "Special Needs Care",
       rating: 4.9,
       reviews: 156,
-      image: "https://i.ibb.co.com/5X5wxB86/image.png",
+      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400",
     },
   ];
 
@@ -76,10 +76,10 @@ const Diffrent = () => {
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900">
+            <h2 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-pink-600 pb-1">
               Care for Every Moment
             </h2>
-            <p className="text-gray-600 mt-4">
+            <p className="text-lg text-gray-600 mt-4">
               Whatever your schedule, we have a sitter for that.
             </p>
           </div>
@@ -113,10 +113,10 @@ const Diffrent = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-end mb-12">
             <div>
-              <span className="text-rose-600 font-semibold tracking-wide uppercase text-sm">
+              <span className="font-semibold tracking-wide uppercase text-sm text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-pink-600">
                 Top Rated
               </span>
-              <h2 className="mt-2 text-4xl font-bold text-gray-900">
+              <h2 className="mt-2 text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-pink-600 pb-1">
                 Meet Our Caregivers
               </h2>
             </div>

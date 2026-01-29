@@ -33,10 +33,10 @@ const PartnersCompany = () => {
         Trusted by working parents at
       </p>
       {/* 1.5 Partners Section */}
-      {/* <section className="py-10 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+      <section className="py-10 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex flex-wrap justify-center gap-8 md:gap-16 items-center opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-            {partners.map((partner, i) => (
+          <div className="flex flex-wrap justify-center gap-8 md:gap-16 items-center opacity-70 hover:opacity-100 transition-all duration-500">
+            {["Care.com", "Sittercity", "UrbanSitter", "CareGuide", "Bambino"].map((partner, i) => (
               <span
                 key={i}
                 className="text-2xl font-bold text-gray-400 dark:text-gray-500 hover:text-rose-600 dark:hover:text-rose-500 transition-colors cursor-default"
@@ -46,7 +46,7 @@ const PartnersCompany = () => {
             ))}
           </div>
         </div>
-      </section> */}
+      </section>
 
       {/* 2. Stats Section */}
       <section className="py-12 bg-white dark:bg-gray-900 border-y border-gray-100 dark:border-gray-800">

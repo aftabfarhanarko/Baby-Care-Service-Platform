@@ -128,21 +128,22 @@ const AllFile = () => {
       title: "10 Tips for First-Time Parents",
       category: "Parenting",
       date: "Mar 15, 2024",
-      image: "https://i.ibb.co.com/twGYt4JM/portrait-modern-woman.jpg",
+      image:
+        "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?auto=format&fit=crop&q=80&w=600",
     },
     {
       title: "Understanding Elderly Nutrition",
       category: "Senior Care",
       date: "Mar 12, 2024",
       image:
-        "https://i.ibb.co.com/spxf3fZC/young-beautiful-girl-posing-black-leather-jacket-park.jpg",
+        "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&q=80&w=600",
     },
     {
       title: "Creating a Safe Home Environment",
       category: "Safety",
       date: "Mar 10, 2024",
       image:
-        "https://i.ibb.co.com/fGZpFPCC/fashion-girl-walking-sspring-park.jpg",
+        "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&q=80&w=600",
     },
   ];
   return (
@@ -151,10 +152,10 @@ const AllFile = () => {
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <span className="text-rose-600 font-semibold tracking-wide uppercase text-sm">
+            <span className="font-semibold tracking-wide uppercase text-sm text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-pink-600">
               Process
             </span>
-            <h2 className="mt-2 text-4xl font-bold text-gray-900">
+            <h2 className="mt-2 text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-pink-600 pb-1">
               How It Works
             </h2>
           </div>
@@ -216,7 +217,7 @@ const AllFile = () => {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-pink-400 pb-1">
                 Why Families Trust Us
               </h2>
               <p className="text-gray-400 text-lg mb-12">
@@ -304,10 +305,10 @@ const AllFile = () => {
       <section className="py-24 bg-rose-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <span className="text-rose-600 font-semibold tracking-wide uppercase text-sm">
+            <span className="font-semibold tracking-wide uppercase text-sm text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-pink-600">
               Safety First
             </span>
-            <h2 className="mt-2 text-4xl font-bold text-gray-900">
+            <h2 className="mt-2 text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-pink-600 pb-1">
               Our Vetting Process
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto mt-4 text-lg">
@@ -417,10 +418,10 @@ const AllFile = () => {
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               What Our Clients Say
             </h2>
-            <p className="text-gray-600">Real stories from real families.</p>
+            <p className="text-lg text-gray-600 mt-4">Real stories from real families.</p>
           </div>
           <motion.div
             className="grid md:grid-cols-3 gap-8"
@@ -479,6 +480,60 @@ const AllFile = () => {
           </motion.div>
         </div>
       </section>
+      {/* 7.2 Latest Blogs Section */}
+      <section className="py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <span className="text-rose-600 font-semibold tracking-wide uppercase text-sm">
+              Resources
+            </span>
+            <h2 className="mt-2 text-3xl md:text-4xl font-bold text-gray-900">
+              Latest from our Blog
+            </h2>
+            <p className="text-lg text-gray-600 mt-4">
+              Expert advice for every stage of your caregiving journey.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {blogs.map((blog, i) => (
+              <motion.div
+                key={i}
+                className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <div className="h-48 overflow-hidden">
+                  <img
+                    src={blog.image}
+                    alt={blog.title}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-bold text-rose-600 uppercase tracking-wider">
+                      {blog.category}
+                    </span>
+                    <span className="text-xs text-gray-500">{blog.date}</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 hover:text-rose-600 transition-colors cursor-pointer">
+                    {blog.title}
+                  </h3>
+                  <Link
+                    href="#"
+                    className="inline-flex items-center text-sm font-semibold text-gray-600 hover:text-rose-600 mt-2"
+                  >
+                    Read Article <ArrowRight className="w-4 h-4 ml-1" />
+                  </Link>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* 7.5 Careers Section */}
       <section className="py-24 bg-rose-900 text-white overflow-hidden relative">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-10"></div>
@@ -492,7 +547,7 @@ const AllFile = () => {
               <span className="bg-rose-800 text-rose-200 px-4 py-1 rounded-full text-sm font-bold mb-6 inline-block">
                 Join Our Team
               </span>
-              <h2 className="text-4xl font-bold mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">
                 Do what you love,
                 <br />
                 get paid for it.
@@ -599,10 +654,10 @@ const AllFile = () => {
       <section className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Simple, Transparent Pricing
             </h2>
-            <p className="text-gray-600">
+            <p className="text-lg text-gray-600 mt-4">
               Choose the plan that fits your family's needs.
             </p>
           </div>
@@ -679,7 +734,7 @@ const AllFile = () => {
               <span className="text-rose-500 font-bold tracking-wide uppercase">
                 Mobile App
               </span>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mt-2 mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mt-2 mb-6">
                 Care at Your Fingertips
               </h2>
               <p className="text-gray-400 text-lg mb-8">
@@ -759,7 +814,7 @@ const AllFile = () => {
             <span className="text-rose-600 font-semibold tracking-wide uppercase text-sm">
               Recognition
             </span>
-            <h2 className="mt-2 text-3xl font-bold text-gray-900">
+            <h2 className="mt-2 text-3xl md:text-4xl font-bold text-gray-900">
               Award-Winning Care
             </h2>
           </div>
@@ -793,10 +848,10 @@ const AllFile = () => {
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Meet Our Leadership
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 mt-4 max-w-2xl mx-auto">
               Dedicated professionals committed to redefining family care
               standards.
             </p>
@@ -813,24 +868,28 @@ const AllFile = () => {
                 name: "Dr. Emily Carter",
                 role: "Founder & CEO",
                 bio: "Former pediatrician with 15+ years of experience in child health.",
+                image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400"
               },
               {
                 name: "James Wilson",
                 role: "Head of Safety",
                 bio: "Retired law enforcement officer specializing in background verification.",
+                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400"
               },
               {
                 name: "Sophia Rodriguez",
                 role: "Care Director",
                 bio: "Certified child psychologist and early education specialist.",
+                image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80&w=400"
               },
             ].map((member, i) => (
               <motion.div key={i} variants={fadeInUp} className="text-center">
-                <div className="w-32 h-32 bg-gray-200 rounded-full mx-auto mb-6 overflow-hidden">
-                  {/* Placeholder for actual images */}
-                  <div className="w-full h-full bg-rose-100 flex items-center justify-center text-rose-500 text-3xl font-bold">
-                    {member.name[0]}
-                  </div>
+                <div className="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden shadow-lg border-4 border-white">
+                  <img 
+                    src={member.image} 
+                    alt={member.name}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900">
                   {member.name}
@@ -859,10 +918,31 @@ const AllFile = () => {
             </button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((item, i) => (
+            {[
+              {
+                caption: "Art time with Nanny Sarah",
+                image:
+                  "https://images.unsplash.com/photo-1596464716127-f9a82763ef5c?auto=format&fit=crop&q=80&w=800",
+              },
+              {
+                caption: "Grandpa's 80th Birthday Celebration",
+                image:
+                  "https://images.unsplash.com/photo-1545342952-df6d6cefb952?auto=format&fit=crop&q=80&w=600",
+              },
+              {
+                caption: "First Swimming Lesson",
+                image:
+                  "https://images.unsplash.com/photo-1519315901367-f34ff9154487?auto=format&fit=crop&q=80&w=600",
+              },
+              {
+                caption: "After-school Park Adventures",
+                image:
+                  "https://images.unsplash.com/photo-1606092195730-5d7b9af1ef4d?auto=format&fit=crop&q=80&w=800",
+              },
+            ].map((item, i) => (
               <motion.div
                 key={i}
-                className={`relative rounded-xl overflow-hidden h-64 bg-gray-800 ${
+                className={`relative rounded-xl overflow-hidden h-64 bg-gray-800 group ${
                   i === 0 || i === 3 ? "md:col-span-2" : ""
                 }`}
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -870,9 +950,14 @@ const AllFile = () => {
                 transition={{ delay: i * 0.1 }}
                 viewport={{ once: true }}
               >
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
-                  <p className="font-medium text-white/90">
-                    Happy moments #{item}
+                <img
+                  src={item.image}
+                  alt={item.caption}
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-6">
+                  <p className="font-medium text-white/90 text-lg">
+                    {item.caption}
                   </p>
                 </div>
               </motion.div>

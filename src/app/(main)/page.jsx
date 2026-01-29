@@ -5,7 +5,7 @@ import Services from "@/components/home/Services";
 import Diffrent from "@/components/home/Diffrent";
 import AllFile from "@/components/home/AllFile";
 
-const Page = () => {
+const HomePage = () => {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 overflow-x-hidden">
       {/* Banner */}
@@ -25,4 +25,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default HomePage;
