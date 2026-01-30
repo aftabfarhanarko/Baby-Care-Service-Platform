@@ -12,7 +12,7 @@ const page = async () => {
   console.log("getcaregiversData", caregivers);
 
   return (
-    <div>
+    <div className=" pt-10">
       <FullPages caregivers={caregivers} />
     </div>
   );

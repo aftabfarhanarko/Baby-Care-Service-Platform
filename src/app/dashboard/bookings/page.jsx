@@ -15,7 +15,7 @@ const BookingsPage = async () => {
   const caregiverBookings = await myCaregiverBookings(user?.email);
   // console.log("My Booking", allBookig);
 
-  return <BookingsContent allBookig={allBookig} caregiverBookings={caregiverBookings}/>;
+  return <BookingsContent allBookig={allBookig} caregiverBookings={caregiverBookings} user={user} />;
 };
 
 export default BookingsPage;
