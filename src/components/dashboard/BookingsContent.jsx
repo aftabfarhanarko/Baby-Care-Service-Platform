@@ -21,6 +21,7 @@ import {
   DollarSign,
   MapPin,
   User,
+  Info,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import {
@@ -116,6 +117,8 @@ const BookingsContent = ({ allBookig = [], user }) => {
         year: "numeric",
         month: "short",
         day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
       });
     } catch {
       return dateStr;
@@ -248,7 +251,7 @@ const BookingsContent = ({ allBookig = [], user }) => {
               </div>
               <div>
                 <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
-                  My Bookings
+                  My Service Bookings
                 </h1>
                 <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2 mt-1">
                   Manage your upcoming and past bookings
@@ -367,6 +370,10 @@ const BookingsContent = ({ allBookig = [], user }) => {
                                 {item.user?.name || "Unknown Provider"}
                               </div>
                               <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                <Briefcase className="w-3 h-3" />
+                                {item.serviceName || "Service"}
+                              </div>
+                              <div className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
                                 <Mail className="w-3 h-3" />
                                 {item.user?.email || "No Email"}
                               </div>
@@ -392,8 +399,8 @@ const BookingsContent = ({ allBookig = [], user }) => {
                               </div>
                               <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
                                 <MapPin className="w-3 h-3" />
-                                <span className="truncate max-w-[150px]" title={item.bookingDetails?.address}>
-                                  {item.bookingDetails?.address || "No Address"}
+                                <span className="truncate max-w-[150px]" title={item.bookingDetails?.location?.address || item.bookingDetails?.location || "No Address"}>
+                                  {item.bookingDetails?.location?.address || item.bookingDetails?.location || "No Address"}
                                 </span>
                               </div>
                             </div>
@@ -403,8 +410,24 @@ const BookingsContent = ({ allBookig = [], user }) => {
                           <div className="flex flex-col gap-1 text-sm text-gray-500 dark:text-gray-400">
                             <div className="flex items-center gap-2">
                               <Calendar className="w-4 h-4" />
-                              {formatDate(item.bookingDetails?.date || item.date || item.dateCreated)}
+                              {formatDate(item.createdAt)}
                             </div>
+                            {item.bookingDetails?.dutyTime && (
+                              <div className="flex items-center gap-2 text-xs text-rose-500">
+                                <Clock className="w-3.5 h-3.5" />
+                                <span className="truncate max-w-[150px]" title={item.bookingDetails.dutyTime}>
+                                  {item.bookingDetails.dutyTime}
+                                </span>
+                              </div>
+                            )}
+                            {item.bookingDetails?.moreInfo && (
+                              <div className="flex items-center gap-2 text-xs text-gray-400">
+                                <Info className="w-3.5 h-3.5" />
+                                <span className="truncate max-w-[150px]" title={item.bookingDetails.moreInfo}>
+                                  {item.bookingDetails.moreInfo}
+                                </span>
+                              </div>
+                            )}
                             <div className="flex items-center gap-2">
                               <Clock className="w-4 h-4" />
                               {item.bookingDetails?.duration || 0} Hours
@@ -425,8 +448,10 @@ const BookingsContent = ({ allBookig = [], user }) => {
                               <DollarSign className="w-4 h-4" />
                               {(item.financials?.totalCost || 0).toFixed(2)}
                             </div>
-                            <span className="text-xs text-gray-400">
-                               {item.bookingDetails?.duration || 0} Hours
+                            <span className="text-xs text-gray-400 flex items-center gap-1">
+                               <span>${item.servicePricePerHour || 0}/hr</span>
+                               <span className="w-1 h-1 rounded-full bg-gray-300" />
+                               <span>{item.bookingDetails?.duration || 0}h</span>
                             </span>
                           </div>
                         </td>
@@ -537,7 +562,10 @@ const BookingsContent = ({ allBookig = [], user }) => {
                       <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-rose-600 transition-colors">
                         {item.user?.name || "Unknown Provider"}
                       </h3>
-                      <div className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                        {item.user?.email || "No Email"}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-sm font-medium text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 px-3 py-1 rounded-full border border-rose-100 dark:border-rose-800">
                         <Briefcase className="w-3.5 h-3.5" />
                         <span>{item.serviceName || "Service"}</span>
                         <span className="w-1 h-1 rounded-full bg-rose-300 dark:bg-rose-700 mx-1" />
@@ -545,41 +573,37 @@ const BookingsContent = ({ allBookig = [], user }) => {
                       </div>
                     </div>
 
-                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 mb-4 border border-gray-100 dark:border-gray-700/50">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-gray-800 flex items-center justify-center border border-blue-100 dark:border-gray-700 text-blue-500 font-medium text-sm overflow-hidden flex-shrink-0">
-                          {user?.image ? (
-                            <img
-                              src={cleanImageUrl(user.image)}
-                              alt={user.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            user?.name?.charAt(0).toUpperCase() || "M"
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
-                            Booked by
-                          </p>
-                          <p className="text-sm font-semibold text-gray-900 dark:text-gray-200 truncate">
-                            {user?.name || "Me"}
-                          </p>
-                        </div>
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                      <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700/50 flex flex-col items-center justify-center text-center">
+                         <Clock className="w-5 h-5 text-gray-400 mb-1" />
+                         <span className="text-lg font-bold text-gray-900 dark:text-white">{item.bookingDetails?.duration || 0}</span>
+                         <span className="text-xs text-gray-500">Hours</span>
+                      </div>
+                      <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700/50 flex flex-col items-center justify-center text-center">
+                         <MapPin className="w-5 h-5 text-gray-400 mb-1" />
+                         <span className="text-xs font-medium text-gray-900 dark:text-white line-clamp-2" title={item.bookingDetails?.location?.address || item.bookingDetails?.location || "No Address"}>
+                           {item.bookingDetails?.location?.address || item.bookingDetails?.location || "No Address"}
+                         </span>
                       </div>
                     </div>
+
+                    {item.bookingDetails?.dutyTime && (
+                       <div className="mb-4 bg-rose-50/50 dark:bg-rose-900/10 rounded-xl p-3 border border-rose-100 dark:border-rose-800/30 flex items-start gap-2.5">
+                          <Info className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
+                          <div className="flex flex-col">
+                            <span className="text-xs font-semibold text-rose-700 dark:text-rose-300 uppercase tracking-wide">Duty Time</span>
+                            <span className="text-sm text-gray-700 dark:text-gray-300">{item.bookingDetails.dutyTime}</span>
+                          </div>
+                       </div>
+                    )}
 
                     <div className="pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between text-sm">
                       <div className="flex flex-col gap-0.5">
                         <div className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
                           <Calendar className="w-3.5 h-3.5" />
                           <span className="font-medium">
-                            {formatDate(item.bookingDetails?.date || item.date || item.dateCreated)}
+                            {formatDate(item.createdAt)}
                           </span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500 text-xs pl-5">
-                          <Clock className="w-3 h-3" />
-                          <span>{item.bookingDetails?.duration || 0} Hours</span>
                         </div>
                       </div>
 

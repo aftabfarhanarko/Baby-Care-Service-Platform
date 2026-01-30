@@ -393,14 +393,16 @@ const FavoritesContent = ({ data = [] }) => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex flex-col gap-1 text-sm text-gray-500 dark:text-gray-400">
                             <div className="flex items-center gap-2">
+                              <Calendar className="w-4 h-4 text-rose-500" />
+                              <span className="text-xs text-gray-400">Booked: {formatDate(item.createdAt)}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
                               <Calendar className="w-4 h-4" />
-                              {formatDate(item.startDate)}{" "}
-                              {/* Changed from item.date to item.startDate */}
+                              {formatDate(item.startDate)}
                             </div>
                             <div className="flex items-center gap-2">
                               <Clock className="w-4 h-4" />
-                              {formatTime(item.startTime)}{" "}
-                              {/* Changed from item.time to item.startTime */}
+                              {formatTime(item.startTime)}
                             </div>
                           </div>
                         </td>
@@ -558,9 +560,25 @@ const FavoritesContent = ({ data = [] }) => {
                           <p className="text-sm font-semibold text-gray-900 dark:text-gray-200 truncate">
                             {item.bookerName || "Unknown Client"}
                           </p>
+                          <p className="text-xs text-gray-400 truncate">
+                            {item.bookerEmail || "No Email"}
+                          </p>
                         </div>
                       </div>
                     </div>
+
+                    {item.days && (
+                      <div className="grid grid-cols-2 gap-3 mb-4">
+                        <div className="bg-rose-50/50 dark:bg-rose-900/10 rounded-xl p-2 border border-rose-100 dark:border-rose-800/30 flex flex-col items-center justify-center text-center">
+                           <span className="text-lg font-bold text-rose-600 dark:text-rose-400">{item.days}</span>
+                           <span className="text-xs text-gray-500">Days</span>
+                        </div>
+                        <div className="bg-rose-50/50 dark:bg-rose-900/10 rounded-xl p-2 border border-rose-100 dark:border-rose-800/30 flex flex-col items-center justify-center text-center">
+                           <span className="text-lg font-bold text-rose-600 dark:text-rose-400">{item.hoursPerDay}</span>
+                           <span className="text-xs text-gray-500">Hours/Day</span>
+                        </div>
+                      </div>
+                    )}
 
                     <div className="pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between text-sm">
                       <div className="flex flex-col gap-0.5">
@@ -573,6 +591,10 @@ const FavoritesContent = ({ data = [] }) => {
                         <div className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500 text-xs pl-5">
                           <Clock className="w-3 h-3" />
                           <span>{formatTime(item.startTime)}</span>
+                        </div>
+                         <div className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500 text-xs pl-5 mt-1">
+                          <Calendar className="w-3 h-3 text-rose-400" />
+                          <span>Booked: {formatDate(item.createdAt)}</span>
                         </div>
                       </div>
 
