@@ -62,10 +62,10 @@ const DashboardLayoutContent = ({ children }) => {
             href: "/dashboard/favorites",
             icon: Heart,
           },
-          { name: "All Users", href: "/dashboard/users", icon: Users },
+          // { name: "All Users", href: "/dashboard/users", icon: Users }, // Hidden for regular users
 
           { name: "Profile", href: "/dashboard/profile", icon: User },
-          
+
           // { name: "Payments", href: "/dashboard/payments", icon: CreditCard },
           { name: "Settings", href: "/dashboard/settings", icon: Settings },
         ]
@@ -80,7 +80,10 @@ const DashboardLayoutContent = ({ children }) => {
             href: "/dashboard/messages",
             icon: MessageSquare,
           },
-          { name: "All Users", href: "/dashboard/users", icon: Users },
+          // Only show All Users if role is admin
+          ...(roleManeze === "admin"
+            ? [{ name: "All Users", href: "/dashboard/users", icon: Users }]
+            : []),
           { name: "Settings", href: "/dashboard/settings", icon: Settings },
         ];
 

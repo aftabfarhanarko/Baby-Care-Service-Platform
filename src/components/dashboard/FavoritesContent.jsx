@@ -1,6 +1,7 @@
 "use client";
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
   Clock,
@@ -10,6 +11,16 @@ import {
   AlertCircle,
   Search,
   CheckCheck,
+  Heart,
+  List,
+  LayoutGrid,
+  Filter,
+  Mail,
+  Phone,
+  ChevronLeft,
+  ChevronRight,
+  DollarSign,
+  MapPin,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import {
@@ -18,7 +29,34 @@ import {
 } from "@/actions/serverData/dashbordApi";
 
 const FavoritesContent = ({ data = [] }) => {
+  const router = useRouter();
+  const [viewMode, setViewMode] = useState("list");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9;
+
   const favorites = Array.isArray(data) && data.length > 0 ? data : [];
+
+  // Helper to clean image URLs (remove backticks/quotes)
+  const cleanImageUrl = (url) => {
+    if (!url) return null;
+    return url.replace(/[`'"]/g, "").trim();
+  };
+
+  // Filter items
+  const filteredFavorites = favorites.filter(
+    (item) =>
+      item.caregiverName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.service?.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
+  // Pagination
+  const totalPages = Math.ceil(filteredFavorites.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentFavorites = filteredFavorites.slice(
+    startIndex,
+    startIndex + itemsPerPage,
+  );
 
   const getStatusConfig = (state = "pending") => {
     const status = (state || "pending").toLowerCase().trim();
@@ -75,6 +113,18 @@ const FavoritesContent = ({ data = [] }) => {
 
   const formatTime = (timeStr) => {
     if (!timeStr) return "—";
+    // Check if it's already in a time format like "19:10"
+    if (timeStr.includes(":")) {
+      const [hours, minutes] = timeStr.split(":");
+      const date = new Date();
+      date.setHours(parseInt(hours), parseInt(minutes));
+      return date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+    }
+
     try {
       return new Date(`1970-01-01T${timeStr}`).toLocaleTimeString("en-US", {
         hour: "numeric",
@@ -86,249 +136,493 @@ const FavoritesContent = ({ data = [] }) => {
     }
   };
 
+  const handleConfirm = async (id) => {
+    try {
+      const res = await updateCaregivers(id, { state: "confirmed" });
+      if (res) {
+        Swal.fire({
+          icon: "success",
+          title: "Booking Confirmed!",
+          text: "The caregiver has been notified.",
+          showConfirmButton: false,
+          timer: 2000,
+          background: "#ffffff",
+          iconColor: "#10b981",
+          customClass: {
+            popup: "rounded-2xl shadow-xl border border-gray-100",
+            title: "text-gray-900 font-bold text-xl",
+            htmlContainer: "text-gray-500",
+          },
+        });
+        router.refresh();
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Failed to confirm booking",
+        confirmButtonColor: "#e11d48",
+        customClass: {
+          popup: "rounded-2xl",
+          confirmButton: "rounded-xl px-6 py-2.5 font-medium",
+        },
+      });
+    }
+  };
+
   const handleDelete = (id) => {
     Swal.fire({
-      title: "Are you sure?",
+      title: "Delete Booking?",
       text: "This action cannot be undone.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#e11d48",
-      cancelButtonColor: "#6b7280",
+      cancelButtonColor: "#9ca3af",
       confirmButtonText: "Yes, delete it",
+      cancelButtonText: "Cancel",
+      background: "#ffffff",
+      iconColor: "#f43f5e",
+      customClass: {
+        popup: "rounded-2xl shadow-xl border border-gray-100",
+        title: "text-gray-900 font-bold text-xl",
+        htmlContainer: "text-gray-500",
+        confirmButton:
+          "rounded-xl px-6 py-2.5 font-medium shadow-sm shadow-rose-500/20",
+        cancelButton:
+          "rounded-xl px-6 py-2.5 font-medium bg-gray-100 text-gray-700 hover:bg-gray-200",
+        actions: "gap-3",
+      },
     }).then(async (result) => {
       if (result.isConfirmed) {
-        // TODO: API call to delete
-        const result = await deleteCaregivers(id);
-        if (result.success) {
-          Swal.fire("Deleted!", "Booking has been removed.", "success");
+        try {
+          const res = await deleteCaregivers(id);
+          if (res) {
+            Swal.fire({
+              icon: "success",
+              title: "Deleted!",
+              text: "Booking has been removed.",
+              showConfirmButton: false,
+              timer: 1500,
+              background: "#ffffff",
+              iconColor: "#e11d48",
+              customClass: {
+                popup: "rounded-2xl shadow-xl border border-gray-100",
+                title: "text-gray-900 font-bold text-xl",
+              },
+            });
+            router.refresh();
+          }
+        } catch (error) {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to delete booking",
+            confirmButtonColor: "#e11d48",
+            customClass: {
+              popup: "rounded-2xl",
+              confirmButton: "rounded-xl px-6 py-2.5 font-medium",
+            },
+          });
         }
-        console.log("Deleting booking:", result);
       }
     });
   };
-
-  const handleConfirm = (id) => {
-    Swal.fire({
-      title: "Confirm this booking?",
-      text: "This will mark the booking as confirmed.",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonColor: "#10b981",
-      cancelButtonColor: "#6b7280",
-      confirmButtonText: "Yes, confirm",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        // TODO: API call to confirm
-        const result = await updateCaregivers(id);
-
-        if (result.success) {
-          Swal.fire("Confirmed!", "Booking is now confirmed.", "success");
-        }
-        console.log("Confirming booking:", result);
-      }
-    });
-  };
-
-  if (favorites.length === 0) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Favorite Caregivers
-          </h1>
-          <p className="mt-1 text-gray-500 dark:text-gray-400">
-            Your saved list of trusted professionals
-          </p>
-        </div>
-
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 py-20 text-gray-500 dark:text-gray-400">
-          <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-rose-50 dark:bg-rose-950/30">
-            <Search className="h-10 w-10 text-rose-500" />
-          </div>
-          <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">
-            No Favorites Yet
-          </h3>
-          <p className="max-w-sm px-6 text-center">
-            You haven't added any caregivers to your favorites. Start exploring
-            to save your preferred professionals.
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Favorite Caregivers
-          </h1>
-          <p className="mt-1 text-gray-500 dark:text-gray-400">
-            Your saved list of trusted professionals
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="rounded-full bg-rose-100 px-4 py-1.5 text-sm font-semibold text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">
-            {favorites.length} Saved
-          </span>
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+        <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="p-3 md:p-4 bg-gradient-to-br from-rose-100 to-rose-50 dark:from-rose-900/40 dark:to-rose-900/20 rounded-2xl border border-rose-200/50 dark:border-rose-700/30 shadow-sm flex-shrink-0">
+                <Heart className="w-6 h-6 md:w-8 md:h-8 text-rose-600 dark:text-rose-400" />
+              </div>
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+                  Caregivers Booking
+                </h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2 mt-1">
+                  View and manage your caregiver bookings
+                  <span className="hidden sm:inline-block w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 text-[10px] font-medium border border-rose-100 dark:border-rose-800">
+                    {favorites.length} Bookings
+                  </span>
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 p-1 rounded-xl border border-gray-200 dark:border-gray-700 self-start md:self-center">
+              <button
+                onClick={() => setViewMode("list")}
+                className={`p-2 rounded-lg transition-all ${
+                  viewMode === "list"
+                    ? "bg-white dark:bg-gray-700 text-rose-600 shadow-sm"
+                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                }`}
+              >
+                <List className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`p-2 rounded-lg transition-all ${
+                  viewMode === "grid"
+                    ? "bg-white dark:bg-gray-700 text-rose-600 shadow-sm"
+                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                }`}
+              >
+                <LayoutGrid className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search by caregiver or service..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all outline-none"
+              />
+            </div>
+            <button className="w-full md:w-auto flex items-center justify-center gap-2 px-5 py-3.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-gray-700 dark:text-gray-300 font-medium shadow-sm">
+              <Filter className="w-4 h-4" />
+              <span>Filters</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Cards */}
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {favorites.map((item, index) => {
-          const rawState = item.status || item.state || "pending";
-          const status = getStatusConfig(rawState);
-          const StatusIcon = status.icon;
-          const isPending = rawState === "pending";
+      {/* Content Section */}
+      <AnimatePresence mode="wait">
+        {viewMode === "list" ? (
+          <motion.div
+            key="list"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden"
+          >
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-rose-100/40 dark:bg-rose-900/20 border-b border-gray-100 dark:border-gray-800">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-rose-900 dark:text-rose-100 uppercase tracking-wider">
+                      Caregiver
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-rose-900 dark:text-rose-100 uppercase tracking-wider">
+                      Client
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-rose-900 dark:text-rose-100 uppercase tracking-wider">
+                      Schedule
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-rose-900 dark:text-rose-100 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-rose-900 dark:text-rose-100 uppercase tracking-wider">
+                      Service / Cost
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-semibold text-rose-900 dark:text-rose-100 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                  {currentFavorites.map((item) => {
+                    const status = getStatusConfig(item.state); // Changed from item.status to item.state
+                    const StatusIcon = status.icon;
 
-          return (
-            <motion.div
-              key={item._id || index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.08, duration: 0.5 }}
-              className="group flex h-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:border-gray-300 hover:shadow-xl hover:shadow-rose-100/40 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600 dark:hover:shadow-rose-950/30"
-            >
-              {/* Header */}
-              <div className="p-6 pb-4">
-                <div className="mb-5 flex items-start justify-between gap-4">
-                  {/* Booker */}
-                  <div className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2 dark:bg-gray-700/40">
-                    <img
-                      src={
-                        item.bookerImage ||
-                        item.bookerImages ||
-                        "/default-avatar.png"
-                      }
-                      alt={item.bookerName || "Booker"}
-                      className="h-10 w-10 rounded-full border-2 border-white object-cover dark:border-gray-700"
-                      onError={(e) => (e.target.src = "/default-avatar.png")}
-                    />
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                        Booked by
-                      </div>
-                      <div
-                        className="max-w-[140px] truncate text-sm font-bold text-gray-900 dark:text-white"
-                        title={item.bookerName}
+                    return (
+                      <motion.tr
+                        key={item._id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        whileHover={{ backgroundColor: "rgba(0,0,0,0.01)" }}
+                        className="group transition-colors"
                       >
-                        {item.bookerName || "Unknown"}
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-rose-50 dark:bg-gray-800 flex items-center justify-center border border-rose-100 dark:border-gray-700 text-rose-500 font-medium text-lg overflow-hidden relative">
+                              {item.caregiverImage ? (
+                                <img
+                                  src={cleanImageUrl(item.caregiverImage)}
+                                  alt={item.caregiverName}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                item.caregiverName?.charAt(0).toUpperCase() ||
+                                "C"
+                              )}
+                            </div>
+                            <div>
+                              <div className="font-medium text-gray-900 dark:text-gray-100">
+                                {item.caregiverName || "Unknown Caregiver"}
+                              </div>
+                              <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                <Briefcase className="w-3 h-3" />
+                                {item.service || "General Care"}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-gray-800 flex items-center justify-center border border-blue-100 dark:border-gray-700 text-blue-500 font-medium text-lg overflow-hidden relative">
+                              {item.bookerImages ? (
+                                <img
+                                  src={cleanImageUrl(item.bookerImages)}
+                                  alt={item.bookerName}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                item.bookerName?.charAt(0).toUpperCase() || "C"
+                              )}
+                            </div>
+                            <div>
+                              <div className="font-medium text-gray-900 dark:text-gray-100">
+                                {item.bookerName || "Unknown Client"}
+                              </div>
+                              <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                <Mail className="w-3 h-3" />
+                                {item.bookerEmail || "No Email"}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex flex-col gap-1 text-sm text-gray-500 dark:text-gray-400">
+                            <div className="flex items-center gap-2">
+                              <Calendar className="w-4 h-4" />
+                              {formatDate(item.startDate)}{" "}
+                              {/* Changed from item.date to item.startDate */}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4" />
+                              {formatTime(item.startTime)}{" "}
+                              {/* Changed from item.time to item.startTime */}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${status.light} ${status.border}`}
+                          >
+                            <StatusIcon className="w-3 h-3" />
+                            {status.label}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2 font-medium text-gray-700 dark:text-gray-300">
+                              <DollarSign className="w-4 h-4" />
+                              {item.totalCost || 0}
+                            </div>
+                            {item.days && (
+                              <span className="text-xs text-gray-400">
+                                {item.days} days • {item.hoursPerDay}h/day
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex items-center justify-end gap-2">
+                            {item.state === "confirmed" ? (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-emerald-600 bg-emerald-50 border border-emerald-100 font-medium text-xs">
+                                <CheckCircle className="w-4 h-4" />
+                                Confirmed
+                              </span>
+                            ) : (
+                              <>
+                                {item.state === "pending" && (
+                                  <button
+                                    onClick={() => handleConfirm(item._id)}
+                                    className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-emerald-600 border border-emerald-600 hover:bg-emerald-50 transition-colors"
+                                    title="Confirm Booking"
+                                  >
+                                    <CheckCircle className="w-4 h-4" />
+                                    <span className="text-xs font-medium">
+                                      Confirm
+                                    </span>
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => handleDelete(item._id)}
+                                  className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-red-600 border border-red-600 hover:bg-red-50 transition-colors"
+                                  title="Delete Booking"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                  <span className="text-xs font-medium">
+                                    Delete
+                                  </span>
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </motion.tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="grid"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {currentFavorites.map((item) => {
+              const status = getStatusConfig(item.state);
+              const StatusIcon = status.icon;
+
+              return (
+                <motion.div
+                  key={item._id}
+                  whileHover={{ y: -5 }}
+                  className="bg-gradient-to-br from-white to-rose-50/30 dark:from-gray-800 dark:to-rose-900/10 rounded-2xl p-6 border border-rose-100 dark:border-rose-900/30 hover:shadow-xl hover:shadow-rose-100/50 dark:hover:shadow-none transition-all group relative"
+                >
+                  <div className="absolute top-4 right-4 z-10">
+                    {item.state === "confirmed" ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-emerald-600 bg-emerald-50 border border-emerald-100 font-medium text-xs shadow-sm">
+                        <CheckCircle className="w-3.5 h-3.5" />
+                        Confirmed
+                      </span>
+                    ) : (
+                      <div className="flex gap-1">
+                        {item.state === "pending" && (
+                          <button
+                            onClick={() => handleConfirm(item._id)}
+                            className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-emerald-600 border border-emerald-600 hover:bg-emerald-50 transition-colors bg-white/80 backdrop-blur-sm"
+                            title="Confirm Booking"
+                          >
+                            <CheckCircle className="w-3.5 h-3.5" />
+                            <span className="text-xs font-medium">Confirm</span>
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDelete(item._id)}
+                          className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-red-600 border border-red-600 hover:bg-red-50 transition-colors bg-white/80 backdrop-blur-sm"
+                          title="Delete Booking"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span className="text-xs font-medium">Delete</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-8">
+                    <div className="flex flex-col items-center text-center mb-6">
+                      <div className="w-20 h-20 rounded-2xl bg-rose-50 dark:bg-gray-800 flex items-center justify-center border-2 border-white dark:border-gray-700 shadow-lg text-rose-500 text-3xl font-bold overflow-hidden mb-3 relative">
+                        {item.caregiverImage ? (
+                          <img
+                            src={cleanImageUrl(item.caregiverImage)}
+                            alt={item.caregiverName}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          item.caregiverName?.charAt(0).toUpperCase() || "C"
+                        )}
+                      </div>
+
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-rose-600 transition-colors">
+                        {item.caregiverName || "Unknown Caregiver"}
+                      </h3>
+                      <div className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        <Briefcase className="w-3.5 h-3.5" />
+                        <span>{item.service || "General Care"}</span>
+                      </div>
+                    </div>
+
+                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 mb-4 border border-gray-100 dark:border-gray-700/50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-gray-800 flex items-center justify-center border border-blue-100 dark:border-gray-700 text-blue-500 font-medium text-sm overflow-hidden flex-shrink-0">
+                          {item.bookerImages ? (
+                            <img
+                              src={cleanImageUrl(item.bookerImages)}
+                              alt={item.bookerName}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            item.bookerName?.charAt(0).toUpperCase() || "B"
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
+                            Booked by
+                          </p>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-gray-200 truncate">
+                            {item.bookerName || "Unknown Client"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between text-sm">
+                      <div className="flex flex-col gap-0.5">
+                        <div className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span className="font-medium">
+                            {formatDate(item.startDate)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500 text-xs pl-5">
+                          <Clock className="w-3 h-3" />
+                          <span>{formatTime(item.startTime)}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-0.5">
+                        <div className="flex items-center gap-1 text-rose-600 dark:text-rose-400 font-bold">
+                          <DollarSign className="w-4 h-4" />
+                          <span className="text-lg">{item.totalCost}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-                  {/* Status + Price */}
-                  <div className="flex flex-col items-end gap-3">
-                    <span
-                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-semibold shadow-sm ${status.light} ${status.border}`}
-                    >
-                      <StatusIcon className="h-4 w-4" />
-                      {status.label}
-                    </span>
-
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-rose-600 dark:text-rose-400">
-                        ${Number(item.totalCost || 0).toFixed(2)}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        Total
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Caregiver */}
-                <div className="flex items-center gap-4">
-                  <div className="relative shrink-0">
-                    <img
-                      src={item.caregiverImage || "/default-caregiver.jpg"}
-                      alt={item.caregiverName || "Caregiver"}
-                      className="h-16 w-16 rounded-2xl border-2 border-white object-cover shadow-md dark:border-gray-700 group-hover:scale-105 transition-transform"
-                      onError={(e) => (e.target.src = "/default-avatar.png")}
-                    />
-                    <div
-                      className={`absolute -bottom-1.5 -right-1.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white dark:border-gray-900 ${status.dot} shadow-md`}
-                    >
-                      <StatusIcon className="h-4 w-4 text-white" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="line-clamp-1 text-lg font-bold text-gray-900 dark:text-white">
-                      {item.caregiverName || "Unnamed Caregiver"}
-                    </h3>
-                    <div className="mt-0.5 flex items-center gap-1.5 text-sm text-rose-600 dark:text-rose-400">
-                      <Briefcase className="h-3.5 w-3.5" />
-                      <span>{item.service || "Service"}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Details */}
-              <div className="flex-1 space-y-3 border-y border-gray-100 bg-gray-50/70 px-6 py-5 dark:border-gray-700 dark:bg-gray-800/40">
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                    <Calendar className="h-4 w-4 text-rose-500" />
-                    <span>Start Date</span>
-                  </div>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">
-                    {formatDate(item.startDate)}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                    <Clock className="h-4 w-4 text-purple-500" />
-                    <span>Start Time</span>
-                  </div>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">
-                    {formatTime(item.startTime)}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                    <AlertCircle className="h-4 w-4 text-amber-500" />
-                    <span>Duration</span>
-                  </div>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">
-                    {item.days || "?"} days ({item.hoursPerDay || "?"} h/day)
-                  </span>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="p-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(item._id)}
-                    className="flex items-center justify-center gap-2 rounded-xl bg-gray-100 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-200 active:scale-97 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </button>
-
-                  {isPending && (
-                    <button
-                      type="button"
-                      onClick={() => handleConfirm(item._id)}
-                      className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-rose-500 py-3 text-sm font-semibold text-white shadow-lg shadow-rose-500/25 transition hover:shadow-rose-500/40 hover:brightness-105 active:scale-97"
-                    >
-                      <CheckCircle className="h-4 w-4" />
-                      Confirm
-                    </button>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center gap-2 mt-8">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`w-10 h-10 rounded-lg border transition-colors ${
+                currentPage === page
+                  ? "bg-rose-600 border-rose-600 text-white shadow-lg shadow-rose-200"
+                  : "border-gray-200 dark:border-gray-700 hover:border-rose-300 dark:hover:border-rose-700 hover:text-rose-600"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };
